@@ -1,6 +1,6 @@
 #include "Framebuffer.h"
 #include "Renderer.h"
-
+#include "MathUtils.h"
 
 const int LEFT = 1;    // 0001
 const int RIGHT = 2;   // 0010
@@ -139,23 +139,23 @@ void Framebuffer::DrawRect(int x, int y, int w, int h, const color_t& color)
 void Framebuffer::DrawLine(int x1, int y1, int x2, int y2, const color_t& color)
 {
 	// Clip the line first
-	if (!ClipLine(x1, y1, x2, y2)) return;
+	//ClipLine(x1, y1, x2, y2);
 
 	//calculate deltas
 	int dx = (x2 - x1);
 	int dy = (y2 - y1);
 	//check for steep line
-	bool steep = std::abs(dx) > std::abs(dy);
+	bool steep = std::abs(dx) < std::abs(dy);
 	if (steep)
 	{
 		std::swap(x1, y1);
 		std::swap(x2, y2);
 	}
 	//ensure left to right drawing
-	if (x1 > y1) 
+	if (x1 > x2) 
 	{
-		std::swap(x1, y1);
-		std::swap(x2, y2);
+		std::swap(x1, x2);
+		std::swap(y1, y2);
 	}
 	//recalculate
 	dx = (x2 - x1);
@@ -212,6 +212,64 @@ void Framebuffer::DrawCircle(int r, int centerX, int centerY, const color_t& col
 			radius--;
 			d += 2 * (y - radius) + 1;  // Midpoint outside the circle
 		}
+	}
+}
+
+void Framebuffer::DrawLinearCurve(int x1, int y1, int x2, int y2, const color_t& color)
+{
+	float dt = 1.0f / 10.0f;
+	float t1 = 0;
+	for (int i = 0; i < 10; i++) 
+	{
+	int sx1 = Lerp(x1, x2, t1);
+	int sy1 = Lerp(y1, y2, t1);
+
+	float t2 = t1 + dt;
+
+	int sx2 = Lerp(y1, y2, t2);
+	int sy2 = Lerp(y1, y2, t2);
+	
+	t1 += dt;
+	DrawLine(sx1, sy1, sx2, sy2, color);
+	}
+
+}
+
+void Framebuffer::DrawQuadraticCurve(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color)
+{
+	float dt = 1.0f / 10.0f;
+	float t1 = 0;
+	for (int i = 0; i < 10; i++)
+	{
+		int sx1, sy1;
+		QuadraticPoint(x1, y1, x2, y2, x3, y3, t1, sx1, sy1);
+
+		float t2 = t1 + dt;
+		int sx2, sy2;
+		QuadraticPoint(x1, y1, x2, y2, x3, y3, t2, sx2, sy2);
+
+		t1 += dt;
+
+		DrawLine(sx1, sy1, sx2, sy2, color);
+	}
+}
+
+void Framebuffer::DrawCubicCurve(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, const color_t& color)
+{
+	float dt = 1.0f / 10.0f;
+	float t1 = 0;
+	for (int i = 0; i < 10; i++)
+	{
+		int sx1, sy1;
+		CubicPoint(x1, y1, x2, y2, x3, y3, x4, y4, t1, sx1, sy1);
+
+		float t2 = t1 + dt;
+		int sx2, sy2;
+		CubicPoint(x1, y1, x2, y2, x3, y3, x4, y4, t2, sx2, sy2);
+
+		t1 += dt;
+
+		DrawLine(sx1, sy1, sx2, sy2, color);
 	}
 }
 

@@ -22,7 +22,10 @@ public:
 	void DrawLine(int x1, int y1, int x2, int y2, const color_t& color);
 	void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color);
 	void DrawCircle(int r, int centerX, int centerY, const color_t& color);
-
+	
+	void DrawLinearCurve(int x1, int y1, int x2, int y2, const color_t& color);
+	void DrawQuadraticCurve(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color);
+	void DrawCubicCurve(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, const color_t& color);
 public:
 	int m_width{ 0 };
 	int m_height{ 0 };

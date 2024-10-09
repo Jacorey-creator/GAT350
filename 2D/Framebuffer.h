@@ -26,6 +26,7 @@ public:
 	void DrawLinearCurve(int x1, int y1, int x2, int y2, const color_t& color);
 	void DrawQuadraticCurve(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color);
 	void DrawCubicCurve(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, const color_t& color);
+	void DrawImage(int x, int y, const class Image& image);
 public:
 	int m_width{ 0 };
 	int m_height{ 0 };

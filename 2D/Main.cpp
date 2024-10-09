@@ -2,12 +2,13 @@
 #include "iostream"
 #include "Renderer.h"
 #include "Framebuffer.h"
+#include "Image.h"
+#include "PostProcess.h"
 #include "MathUtils.h"
 
 int main(int argc, char* argv[])
 {
-	printf ("Hello, World!");
-
+	std::string img = "C:/Users/jrowe/source/repos/GAT350/Build/Photos/";
 	class Renderer r;
 	
 	// initialize SDL
@@ -18,6 +19,9 @@ int main(int argc, char* argv[])
 	r.Create_Window("Game Engine", 800, 600);
 
 	Framebuffer framebuffer(r, 800, 600);
+	Image image;
+	image.Load(img + "Scenic.jpg");
+
 	bool quit = false;
 	while (!quit)
 	{
@@ -45,10 +49,8 @@ int main(int argc, char* argv[])
 			int y2 = rand() % 600;
 			//framebuffer.DrawPoint(x, y, color_t{ 0, 255, 0, 255 });
 		}
+		framebuffer.DrawImage(100, 100, image);
 
-	/*	framebuffer.DrawRect(115, 50, 100, 30, color_t{ 0, 0, 255 });
-		framebuffer.DrawTriangle(400, 213, 300, 386, 500, 386, color_t{ 255, 0, 100 });
-		framebuffer.DrawCircle(25, 100, 200, color_t{ 0, 0, 255 });*/
 		framebuffer.DrawLine(2, 90, 100, 4, color_t{ 0, 255, 0, 255 });
 		int mx, my;
 		SDL_GetMouseState(&mx, &my);
@@ -57,12 +59,9 @@ int main(int argc, char* argv[])
 		framebuffer.DrawQuadraticCurve(100, 100, mx, my, 400, 100, color_t{ 255, 0, 0 });
 		framebuffer.DrawCubicCurve(100, 200, 100, 100, 200, 100, 200, 200, color_t{ 255, 0, 0 });
 
-		int ticks = SDL_GetTicks();
-		float time = ticks * 0.001f;
-		float t = std::abs(std::sin(time));
-		int x, y;
-		CubicPoint(300, 400, 300, 100, mx, my, 600, 400, t, x, y);
-		framebuffer.DrawRect(x, y, 40, 40, { 0, 255, 0 });
+		//PostProcess::Invert(framebuffer.m_buffer);
+		//PostProcess::Monochrome(framebuffer.m_buffer);
+		PostProcess::Brightness(framebuffer.m_buffer, -50);
 		framebuffer.Update();
 
 		r.CopyFrameBuffer(framebuffer);

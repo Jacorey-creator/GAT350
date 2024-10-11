@@ -61,7 +61,13 @@ int main(int argc, char* argv[])
 
 		//PostProcess::Invert(framebuffer.m_buffer);
 		//PostProcess::Monochrome(framebuffer.m_buffer);
-		PostProcess::Brightness(framebuffer.m_buffer, -50);
+		//PostProcess::Brightness(framebuffer.m_buffer, 70);
+		//PostProcess::Sharpen(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+		//PostProcess::GaussianBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+		//PostProcess::ColorBalance(framebuffer.m_buffer, 50, 200, 0);
+		//PostProcess::Noise(framebuffer.m_buffer, 80);
+		//PostProcess::Threshold(framebuffer.m_buffer, 100);
+		PostProcess::Posterize(framebuffer.m_buffer, 3);
 		framebuffer.Update();
 
 		r.CopyFrameBuffer(framebuffer);

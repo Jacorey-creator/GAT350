@@ -1,4 +1,3 @@
-#include <SDL.h>
 #include "iostream"
 #include "Renderer.h"
 #include "Framebuffer.h"
@@ -21,6 +20,11 @@ int main(int argc, char* argv[])
 	Framebuffer framebuffer(r, 800, 600);
 	Image image;
 	image.Load(img + "Scenic.jpg");
+	
+	Image alpha_image;
+	alpha_image.Load(img + "colors.png");
+	//PostProcess::Alpha(alpha_image.m_buffer, 128);
+
 
 	bool quit = false;
 	while (!quit)
@@ -49,25 +53,28 @@ int main(int argc, char* argv[])
 			int y2 = rand() % 600;
 			//framebuffer.DrawPoint(x, y, color_t{ 0, 255, 0, 255 });
 		}
+		SetBlendMode(BlendMode::Normal);
 		framebuffer.DrawImage(100, 100, image);
-
-		framebuffer.DrawLine(2, 90, 100, 4, color_t{ 0, 255, 0, 255 });
-		int mx, my;
-		SDL_GetMouseState(&mx, &my);
-
-		framebuffer.DrawLinearCurve(100, 100, 200, 200, color_t{ 255, 0, 100 });
-		framebuffer.DrawQuadraticCurve(100, 100, mx, my, 400, 100, color_t{ 255, 0, 0 });
-		framebuffer.DrawCubicCurve(100, 200, 100, 100, 200, 100, 200, 200, color_t{ 255, 0, 0 });
-
+		//SetBlendMode(BlendMode::Alpha);
+		//framebuffer.DrawImage(50, 100, alpha_image);
+		
+		
+#pragma region POST_PROCESS 
 		//PostProcess::Invert(framebuffer.m_buffer);
 		//PostProcess::Monochrome(framebuffer.m_buffer);
-		//PostProcess::Brightness(framebuffer.m_buffer, 70);
-		//PostProcess::Sharpen(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
-		//PostProcess::GaussianBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+		//PostProcess::Brightness(framebuffer.m_buffer, -50);
 		//PostProcess::ColorBalance(framebuffer.m_buffer, 50, 200, 0);
 		//PostProcess::Noise(framebuffer.m_buffer, 80);
 		//PostProcess::Threshold(framebuffer.m_buffer, 100);
-		PostProcess::Posterize(framebuffer.m_buffer, 3);
+		//PostProcess::Posterize(framebuffer.m_buffer, 3);
+		//PostProcess::BoxBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+		//PostProcess::GaussianBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+		//PostProcess::Sharpen(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+		//PostProcess::Edge(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height, 3);
+		//PostProcess::Emboss(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+
+		#pragma endregion
+
 		framebuffer.Update();
 
 		r.CopyFrameBuffer(framebuffer);

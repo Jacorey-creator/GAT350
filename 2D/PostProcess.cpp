@@ -82,6 +82,14 @@ namespace PostProcess
 				color.b = static_cast<uint8_t>((color.b / level) * level);
 			});
 	}
+
+	void Alpha(std::vector<color_t>& buffer, uint8_t alpha)
+	{
+		std::for_each(buffer.begin(), buffer.end(), [alpha](auto& color)
+			{
+				color.a = alpha;
+			});
+	}
 	void BoxBlur(std::vector<color_t>& buffer, int width, int height)
 	{
 		std::vector<color_t> source(buffer);
@@ -208,8 +216,8 @@ namespace PostProcess
 			}
 			color_t& color = buffer[i];
 			color.r = static_cast<uint8_t>(Clamp(r, 0, 255));
-			color.g = static_cast<uint8_t>(Clamp(r, 0, 255));
-			color.b = static_cast<uint8_t>(Clamp(r, 0, 255));
+			color.g = static_cast<uint8_t>(Clamp(g, 0, 255));
+			color.b = static_cast<uint8_t>(Clamp(b, 0, 255));
 		}
 	}
 
@@ -263,6 +271,57 @@ namespace PostProcess
 			color.b = c;
 		}
 	}
+
+	void Emboss(std::vector<color_t>& buffer, int width, int height)
+	{
+		std::vector<color_t> source(buffer);
+
+		int k[3][3] =
+		{
+			{ -2, -1, 0 },
+			{ -1, 1, 1 },
+			{ 0, 1, 2 }
+		};
+		for (int i = 0; i < buffer.size(); i++)
+		{
+			// % 5 : 1 2 3 4 5 6 7 8 9 10
+			//     : 1 2 3 4 0 1 2 3 4  0
+			int x = i % width;
+			int y = i / width;
+
+			//Skip if out of range
+			if (x < 1 || x + 1 >= width || y < 1 || y + 1 >= height) continue;
+
+			int r = 0;
+			int g = 0;
+			int b = 0;
+
+			for (int iy = 0; iy < 3; iy++)
+			{
+				for (int ix = 0; ix < 3; ix++)
+				{
+					color_t pixel = source[(x + ix - 1) + (y + iy - 1) * width];
+					int weight = k[iy][ix];
+
+					r += pixel.r * weight;
+					g += pixel.g * weight;
+					b += pixel.b * weight;
+				}
+			}
+			// Add a bias to make sure the pixel values stay within 0-255 range
+			r = std::min(std::max(r + 128, 0), 255);
+			g = std::min(std::max(g + 128, 0), 255);
+			b = std::min(std::max(b + 128, 0), 255);
+
+			// Update the current pixel with the new embossed values
+			color_t& color = buffer[i];
+			color.r = static_cast<uint8_t>(r);
+			color.g = static_cast<uint8_t>(g);
+			color.b = static_cast<uint8_t>(b);
+		}
+
+	}
+
 
 }
 

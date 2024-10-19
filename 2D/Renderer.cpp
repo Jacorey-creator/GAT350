@@ -15,6 +15,8 @@ int Renderer::Init_SDL()
 
 int Renderer::Create_Window(const char* name, int width, int height)
 {
+    m_width = width;
+    m_height = height;
     m_window = SDL_CreateWindow( name,
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         width, height,

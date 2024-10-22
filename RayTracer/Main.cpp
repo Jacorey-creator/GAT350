@@ -3,15 +3,12 @@
 #include "Framebuffer.h"
 #include "Image.h"
 #include "Input.h"
-#include "Actor.h"
-#include "Random.h"
 #include "PostProcess.h"
 #include "MathUtils.h"
 #include "Model.h"
 #include "Transform.h"
 #include "ETime.h"
 #include "Camera.h"
-#include <memory>
 #include <glm/gtc/matrix_transform.hpp>
 
 int main(int argc, char* argv[])
@@ -49,24 +46,9 @@ int main(int argc, char* argv[])
 							  { 5, 5, 0 }, 
 							  {-5, -5, 0 } };
 
-	//Model model(verticies, { 0, 255, 0, 255 });
-	std::shared_ptr<Model> model = std::make_shared<Model>();
-	model->Load("C:/Users/jrowe/source/repos/GAT350/Build/teapot.obj");
-
-	std::vector<std::unique_ptr<Actor>> actors;
-	for (int i = 0; i < 20; i++)
-	{
-		Transform transform{ {randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f)}, glm::vec3{0, 0, 0}, glm::vec3{ randomf(2, 20) }};
-		std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model);
-		actor->SetColor({ (uint8_t)random(256), (uint8_t)random(256), (uint8_t)random(256) });
-		actors.push_back(std::move(actor));
-	}
-	
-
+	Model model(verticies, { 0, 255, 0, 255 });
 	Transform transform{ {0 , 0, 0 }, glm::vec3{ 0, 0, 45 }, glm::vec3 { 3 } };
 	Transform potTransform{ {0 , 0, 0 }, glm::vec3{ 15, 0, 180 }, glm::vec3 { 8 } };
-	Actor actor(transform, model);
-
 	Model teapot;
 	Model slug;
 	teapot.Load("C:/Users/jrowe/source/repos/GAT350/Build/teapot.obj");
@@ -132,17 +114,12 @@ int main(int argc, char* argv[])
 		if (input.GetKeyDown(SDL_SCANCODE_W)) direction.y = 1;
 		if (input.GetKeyDown(SDL_SCANCODE_S)) direction.y = -1;
 
-		cameraTransform.rotation.y = input.GetMousePositionDelta().x * 0.5f;
-		cameraTransform.rotation.x = input.GetMousePositionDelta().y * 0.5f;
-
-		glm::vec3 offset = cameraTransform.GetMatrix() * glm::vec4{ direction, 0 };
-		cameraTransform.position += offset * 70.0f * time.GetDeltaTime();
-		camera.SetView(cameraTransform.position, cameraTransform.position + cameraTransform.GetForward());
+		cameraTransform.position += direction * 70.0f * time.GetDeltaTime();
+		camera.SetView(cameraTransform.position, cameraTransform.position + glm::vec3{ 0, 0, 1 });
 
 		transform.rotation.z += 90 * time.GetDeltaTime();
 
 		//model.Draw(framebuffer, transform.GetMatrix(), camera);
-		actor.Draw(framebuffer, camera);
 
 #pragma endregion
 
@@ -150,8 +127,8 @@ int main(int argc, char* argv[])
 		//teapot.Draw(framebuffer, potTransform.GetMatrix(), camera);
 		//teapot.SetColor({ 128, 77, 178, 255 });
 
-		slug.Draw(framebuffer, potTransform.GetMatrix(), camera);
-		slug.SetColor({ 0, 0, 255, 255 });
+		//slug.Draw(framebuffer, transform.GetMatrix(), camera);
+		//slug.SetColor({ 0, 0, 255, 255 });
 #pragma endregion
 
 

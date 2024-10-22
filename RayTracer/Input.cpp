@@ -13,14 +13,6 @@ bool Input::Initialize()
 
 	m_prevKeyboardState = m_keyboardState;
 
-	int x, y;
-	SDL_GetMouseState(&x, &y);
-	m_mousePosition.x = (float)x;
-	m_mousePosition.y = (float)y;
-
-	m_prevMousePosition.x = (float)x;
-	m_prevMousePosition.y = (float)y;
-
 	return true;
 }
 
@@ -37,10 +29,9 @@ void Input::Update()
 	std::copy(keyboardState, keyboardState + m_keyboardState.size(), m_keyboardState.begin());
 
 	// mouse input
-	SDL_SetRelativeMouseMode(SDL_TRUE);
 	int x, y;
 	uint32_t buttonState = SDL_GetMouseState(&x, &y);
-	m_prevMousePosition = m_mousePosition;
+
 	m_mousePosition.x = (float)x;
 	m_mousePosition.y = (float)y;
 

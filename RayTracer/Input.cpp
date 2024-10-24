@@ -13,6 +13,9 @@ bool Input::Initialize()
 
 	m_prevKeyboardState = m_keyboardState;
 
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+
 	return true;
 }
 
@@ -35,12 +38,18 @@ void Input::Update()
 	m_mousePosition.x = (float)x;
 	m_mousePosition.y = (float)y;
 
-	// 000 <- button state
-	// 010 <- button mask
-	// 000
+	SDL_GetRelativeMouseState(&x, &y);
+	m_mouseRelative.x = (float)x;	
+	m_mouseRelative.y = (float)y;
+
 	m_prevMouseButtonState = m_mouseButtonState;
 
 	m_mouseButtonState[0] = buttonState & SDL_BUTTON_LMASK; 
 	m_mouseButtonState[1] = buttonState & SDL_BUTTON_MMASK; 
 	m_mouseButtonState[2] = buttonState & SDL_BUTTON_RMASK; 
+}
+
+void Input::SetRealativeMode(bool relative)
+{
+	SDL_SetRelativeMouseMode(relative ? SDL_TRUE : SDL_FALSE);
 }

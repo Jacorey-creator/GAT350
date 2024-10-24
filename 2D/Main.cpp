@@ -1,3 +1,4 @@
+#include "SDL.h"
 #include "iostream"
 #include "Renderer.h"
 #include "Framebuffer.h"
@@ -20,7 +21,7 @@ int main(int argc, char* argv[])
 	class Renderer r;
 	Camera camera(r.m_width, r.m_height);
 	camera.SetProjection(60.0f, 800.0f / 600, 0.1f, 200.0f);
-	Transform cameraTransform{ { 0, 0, -20 } };
+	Transform cameraTransform{ { 0, 0, -100 } };
 	
 	// initialize SDL
 	Time time;
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
 	// returns pointer to window if successful or nullptr if failed
 	r.Create_Window("Game Engine", 800, 600);
 
-	SetBlendMode(BlendMode::Normal);
+	//SetBlendMode(BlendMode::Normal);
 
 	Framebuffer framebuffer(r, 800, 600);
 	Image image;
@@ -51,26 +52,29 @@ int main(int argc, char* argv[])
 
 	//Model model(verticies, { 0, 255, 0, 255 });
 	std::shared_ptr<Model> model = std::make_shared<Model>();
-	model->Load("C:/Users/jrowe/source/repos/GAT350/Build/teapot.obj");
+	
+	model->Load("C:/Users/jrowe/source/repos/GAT350/Build/cube.obj");
 
 	std::vector<std::unique_ptr<Actor>> actors;
-	for (int i = 0; i < 20; i++)
-	{
-		Transform transform{ {randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f)}, glm::vec3{0, 0, 0}, glm::vec3{ randomf(2, 20) }};
-		std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model);
-		actor->SetColor({ (uint8_t)random(256), (uint8_t)random(256), (uint8_t)random(256) });
-		actors.push_back(std::move(actor));
-	}
-	
 
-	Transform transform{ {0 , 0, 0 }, glm::vec3{ 0, 0, 45 }, glm::vec3 { 3 } };
+	Transform transform{ {0 , 0, 0 }, glm::vec3{ 0, 0, 0 }, glm::vec3 { 2 } };
 	Transform potTransform{ {0 , 0, 0 }, glm::vec3{ 15, 0, 180 }, glm::vec3 { 8 } };
 	Actor actor(transform, model);
 
 	Model teapot;
 	Model slug;
+	
+	for (int i = 0; i < 20; i++)
+	{
+		Transform transform{ { randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f)}, glm::vec3{0, 0, 0}, glm::vec3{ randomf(2, 20) }};
+		std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model);
+		actor->SetColor({ (uint8_t)random(256), (uint8_t)random(256), (uint8_t)random(256), 255 });
+		actors.push_back(std::move(actor));
+	}
+
 	teapot.Load("C:/Users/jrowe/source/repos/GAT350/Build/teapot.obj");
 	slug.Load("C:/Users/jrowe/source/repos/GAT350/Build/Nightmare_Fiend.obj");
+	
 	bool quit = false;
 	while (!quit) //main loop
 	{
@@ -91,24 +95,16 @@ int main(int argc, char* argv[])
 
 		//clear screen
 		framebuffer.Clear(color_t{ 0,0,0,255 });
-		for (int i = 0; i < 100; i++)
-		{
-			int x = rand() % 800;
-			int y = rand() % 600;
-
-			int x2 = rand() % 800;
-			int y2 = rand() % 600;
-			//framebuffer.DrawPoint(x, y, color_t{ 0, 255, 0, 255 });
-		}
+	
 #pragma region ALPHA_BLEND
-		//SetBlendMode(BlendMode::Normal);	
-		//framebuffer.DrawImage(100, 100, image);	
-		////SetBlendMode(BlendMode::Alpha);	
+		SetBlendMode(BlendMode::Normal);	
+		framebuffer.DrawImage(100, 100, image);	
+		SetBlendMode(BlendMode::Alpha);	
 		//framebuffer.DrawImage(50, 100, alpha_image);
 #pragma endregion	
 
 #pragma region POST_PROCESS 
-		//PostProcess::Invert(framebuffer.m_buffer);
+		PostProcess::Invert(framebuffer.m_buffer);
 		//PostProcess::Monochrome(framebuffer.m_buffer);
 		//PostProcess::Brightness(framebuffer.m_buffer, -50);
 		//PostProcess::ColorBalance(framebuffer.m_buffer, 50, 200, 0);
@@ -123,38 +119,56 @@ int main(int argc, char* argv[])
 
 #pragma endregion
 
-#pragma region MOVE_TRIANGLE
-		glm::vec3 direction{ 0 };
-		if (input.GetKeyDown(SDL_SCANCODE_RIGHT)) direction.x = 1;
-		if (input.GetKeyDown(SDL_SCANCODE_LEFT)) direction.x = -1;
-		if (input.GetKeyDown(SDL_SCANCODE_UP)) direction.y = 1;
-		if (input.GetKeyDown(SDL_SCANCODE_DOWN)) direction.y = -1;
-		if (input.GetKeyDown(SDL_SCANCODE_W)) direction.y = 1;
-		if (input.GetKeyDown(SDL_SCANCODE_S)) direction.y = -1;
+#pragma region MOVE_CAM
+		if (input.GetMouseButtonDown(2))
+		{
+			input.SetRealativeMode(true);
 
-		cameraTransform.rotation.y = input.GetMousePositionDelta().x * 0.5f;
-		cameraTransform.rotation.x = input.GetMousePositionDelta().y * 0.5f;
+			glm::vec3 direction{ 0 };
+			if (input.GetKeyDown(SDL_SCANCODE_RIGHT)) direction.x = 1;
+			if (input.GetKeyDown(SDL_SCANCODE_LEFT)) direction.x = -1;
+			if (input.GetKeyDown(SDL_SCANCODE_UP)) direction.y = 1;
+			if (input.GetKeyDown(SDL_SCANCODE_DOWN)) direction.y = -1;
+			if (input.GetKeyDown(SDL_SCANCODE_W)) direction.z = 1;
+			if (input.GetKeyDown(SDL_SCANCODE_S)) direction.z = -1;
 
-		glm::vec3 offset = cameraTransform.GetMatrix() * glm::vec4{ direction, 0 };
-		cameraTransform.position += offset * 70.0f * time.GetDeltaTime();
+			cameraTransform.rotation.y = input.GetMousePosition().x * 0.25f;
+			cameraTransform.rotation.x = input.GetMousePosition().y * 0.25f;
+
+			glm::vec3 offset = cameraTransform.GetMatrix() * glm::vec4{ direction, 0 };
+
+			cameraTransform.position += offset * 70.0f * time.GetDeltaTime();
+
+			//transform.rotation.z += 90 * time.GetDeltaTime();
+		}
+		else 
+		{
+			input.SetRealativeMode(false);
+		}
+		
 		camera.SetView(cameraTransform.position, cameraTransform.position + cameraTransform.GetForward());
+		
 
-		transform.rotation.z += 90 * time.GetDeltaTime();
-
-		//model.Draw(framebuffer, transform.GetMatrix(), camera);
-		actor.Draw(framebuffer, camera);
 
 #pragma endregion
 
 #pragma region MODELS
-		//teapot.Draw(framebuffer, potTransform.GetMatrix(), camera);
-		//teapot.SetColor({ 128, 77, 178, 255 });
+		teapot.Draw(framebuffer, potTransform.GetMatrix(), camera);
+		teapot.SetColor({ 128, 77, 178, 255 });
 
-		slug.Draw(framebuffer, potTransform.GetMatrix(), camera);
-		slug.SetColor({ 0, 0, 255, 255 });
+		//slug.Draw(framebuffer, potTransform.GetMatrix(), camera);
+		//slug.SetColor({ 0, 0, 255, 255 });
+
+		//model.Draw(framebuffer, transform.GetMatrix(), camera);
+		//actor.Draw(framebuffer, camera);
+		for (auto& actor : actors)
+		{
+			//actor->SetColor({0, 0, 255, 255});
+			actor->Draw(framebuffer, camera);
+		}
 #pragma endregion
-
-
+		
+		//framebuffer.DrawImage(50, 100, image);
 		framebuffer.Update();
 
 		r.CopyFrameBuffer(framebuffer);

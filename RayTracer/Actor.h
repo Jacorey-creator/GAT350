@@ -16,5 +16,5 @@ public:
 private:
 	Transform m_transform;
 	std::shared_ptr<Model> m_model;
-	color_t m_color{255, 255, 255, 255};
+	color_t m_color{255, 255, 255, 1};
 };

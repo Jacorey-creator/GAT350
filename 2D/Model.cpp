@@ -26,6 +26,11 @@ void Model::Draw(Framebuffer& framebuffer, const glm::mat4& model, const class C
 		glm::ivec2 s2 = camera.ToScreen(p2);
 		glm::ivec2 s3 = camera.ToScreen(p3);
 
+		if (s1.x == -1 || s1.y == -1 || s2.x == -1 || s2.y == -1 || s3.x == -1 || s3.y == -1)
+		{
+			continue;
+		}
+		
 		framebuffer.DrawTriangle((int)(p1.x), (int)(p1.y), (int)(p2.x), (int)(p2.y), (int)(p3.x), (int)(p3.y), m_color);
 	}
 }

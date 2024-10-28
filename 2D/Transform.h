@@ -24,6 +24,7 @@ struct Transform
 	{
 		glm::mat4 mxs = glm::scale(scale);
 		glm::mat4 mxt = glm::translate(position);
+
 		//Rotation
 		glm::mat4 mxr = glm::eulerAngleYXZ(glm::radians(rotation.y), glm::radians(rotation.x), glm::radians(rotation.z));
 

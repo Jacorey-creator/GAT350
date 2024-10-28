@@ -12,9 +12,9 @@ class Camera
 		void SetView(const glm::vec3& eye, const glm::vec3& target, const glm::vec3& up = glm::vec3{0, 1, 0});
 
 		glm::vec3 ModelToView(const glm::vec3& pos)  const;
-		glm::vec3 ViewToProjection(const glm::vec3& pos) const;
+		glm::vec4 ViewToProjection(const glm::vec3& pos) const;
 
-		glm::ivec2 ToScreen(const glm::vec3& pos) const;
+		glm::ivec2 ViewToScreen(const glm::vec3& pos) const;
 
 		const glm::mat4x4& GetView() { return m_view; }
 		const glm::mat4x4& GetProjection() { return m_projection; }

@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 	class Renderer r;
 	Camera camera(r.m_width, r.m_height);
 	camera.SetProjection(60.0f, 800.0f / 600, 0.1f, 200.0f);
-	Transform cameraTransform{ { 0, 0, -100 } };
+	Transform cameraTransform{ { 0, 0, -20 } };
 	
 	// initialize SDL
 	Time time;
@@ -44,7 +44,6 @@ int main(int argc, char* argv[])
 	alpha_image.Load(img + "colors.png");
 	PostProcess::Alpha(alpha_image.m_buffer, 128);
 
-	
 
 	verticies_t verticies = { { -5, 5, 0},
 							  { 5, 5, 0 }, 
@@ -59,6 +58,8 @@ int main(int argc, char* argv[])
 
 	Transform transform{ {0 , 0, 0 }, glm::vec3{ 0, 0, 0 }, glm::vec3 { 2 } };
 	Transform potTransform{ {0 , 0, 0 }, glm::vec3{ 15, 0, 180 }, glm::vec3 { 8 } };
+	Transform slugTrasform{ {0 , 50, 100 }, glm::vec3{ 0, 0, 180 }, glm::vec3 { 2 } };
+
 	Actor actor(transform, model);
 
 	Model teapot;
@@ -66,7 +67,7 @@ int main(int argc, char* argv[])
 	
 	for (int i = 0; i < 20; i++)
 	{
-		Transform transform{ { randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f)}, glm::vec3{0, 0, 0}, glm::vec3{ randomf(2, 20) }};
+		Transform transform{ { randomf(-10.0f, 50.0f), randomf(-10.0f, 50.0f), randomf(-10.0f, 50.0f)}, glm::vec3{0, 0, 0}, glm::vec3{ randomf(2, 20) }};
 		std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model);
 		actor->SetColor({ (uint8_t)random(256), (uint8_t)random(256), (uint8_t)random(256), 255 });
 		actors.push_back(std::move(actor));
@@ -97,14 +98,11 @@ int main(int argc, char* argv[])
 		framebuffer.Clear(color_t{ 0,0,0,255 });
 	
 #pragma region ALPHA_BLEND
-		SetBlendMode(BlendMode::Normal);	
-		framebuffer.DrawImage(100, 100, image);	
 		SetBlendMode(BlendMode::Alpha);	
-		//framebuffer.DrawImage(50, 100, alpha_image);
 #pragma endregion	
 
 #pragma region POST_PROCESS 
-		PostProcess::Invert(framebuffer.m_buffer);
+		//PostProcess::Invert(framebuffer.m_buffer);
 		//PostProcess::Monochrome(framebuffer.m_buffer);
 		//PostProcess::Brightness(framebuffer.m_buffer, -50);
 		//PostProcess::ColorBalance(framebuffer.m_buffer, 50, 200, 0);
@@ -127,8 +125,10 @@ int main(int argc, char* argv[])
 			glm::vec3 direction{ 0 };
 			if (input.GetKeyDown(SDL_SCANCODE_RIGHT)) direction.x = 1;
 			if (input.GetKeyDown(SDL_SCANCODE_LEFT)) direction.x = -1;
+
 			if (input.GetKeyDown(SDL_SCANCODE_UP)) direction.y = 1;
 			if (input.GetKeyDown(SDL_SCANCODE_DOWN)) direction.y = -1;
+
 			if (input.GetKeyDown(SDL_SCANCODE_W)) direction.z = 1;
 			if (input.GetKeyDown(SDL_SCANCODE_S)) direction.z = -1;
 
@@ -147,28 +147,22 @@ int main(int argc, char* argv[])
 		}
 		
 		camera.SetView(cameraTransform.position, cameraTransform.position + cameraTransform.GetForward());
-		
-
 
 #pragma endregion
 
-#pragma region MODELS
+		framebuffer.DrawImage(100, 100, image);
+		
 		teapot.Draw(framebuffer, potTransform.GetMatrix(), camera);
 		teapot.SetColor({ 128, 77, 178, 255 });
 
-		//slug.Draw(framebuffer, potTransform.GetMatrix(), camera);
-		//slug.SetColor({ 0, 0, 255, 255 });
+		slug.Draw(framebuffer, slugTrasform.GetMatrix(), camera);
 
-		//model.Draw(framebuffer, transform.GetMatrix(), camera);
-		//actor.Draw(framebuffer, camera);
+
 		for (auto& actor : actors)
 		{
 			//actor->SetColor({0, 0, 255, 255});
 			actor->Draw(framebuffer, camera);
 		}
-#pragma endregion
-		
-		//framebuffer.DrawImage(50, 100, image);
 		framebuffer.Update();
 
 		r.CopyFrameBuffer(framebuffer);

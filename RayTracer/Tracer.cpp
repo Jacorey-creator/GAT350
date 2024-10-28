@@ -1,16 +1,36 @@
 #include "Tracer.h"
-
-void Tracer::Render(Framebuffer& framebuffer, const Camera& camera)
+#include "Scene.h"
+color3_t Tracer::Trace(class Scene& scene, const ray_t& ray, float minDistance, float maxDistance)
 {
-	for (int y = 0; y < framebuffer.m_height; y++) 
-	{
-		for (int x = 0; x < framebuffer.m_width; x++)
-		{
-			glm::vec2 point{ x, y };
+	raycastHit_t raycastHit;
+	float closestDistance = maxDistance;
+	bool isHit = false;
 
-			ray_t ray = camera.GetRay(point);
-			color4_t color = { 1, 0, 0, 1 };
-			framebuffer.DrawPoint(x, y, ColorConvert(color));
+	// get closet hit object
+	for (auto& object : scene.m_objects)
+	{
+		if (object->Hit(ray, raycastHit, minDistance, closestDistance))
+		{
+			isHit = true;
+			closestDistance = raycastHit.distance;
 		}
 	}
+
+	if(isHit)
+	{
+		//return raycastHit.normal;  //View Normals
+		color3_t attentuation;
+		ray_t scatter;
+		if (raycastHit.material.lock()->Scatter(ray, raycastHit, attentuation, scatter))
+		{
+			return attentuation * Trace(scene, scatter, minDistance, maxDistance);
+		}
+	}
+
+	//sky
+	glm::vec3 direction = glm::normalize(ray.direction);
+	float t = (direction.y + 1) * 0.5f;
+	color3_t color = Lerp(color3_t{ 1, 1, 1 }, color3_t{0.5f, 0.7f, 1.0f}, t);
+
+	return color;
 }

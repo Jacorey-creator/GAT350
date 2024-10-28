@@ -22,10 +22,10 @@ inline color_t ColorConvert(const color4_t& color4)
 inline color_t ColorConvert(const color3_t& color3)
 {
 	color_t color;
-	color.r = color3.r / 255.0f;
-	color.g = color3.g / 255.0f;
-	color.b = color3.b / 255.0f;
-	color.a = 255.0f;
+	color.r = (uint8_t)(Clamp(color3.r, 0.0f, 1.0f) * 255);
+	color.g = (uint8_t)(Clamp(color3.g, 0.0f, 1.0f) * 255);
+	color.b = (uint8_t)(Clamp(color3.b, 0.0f, 1.0f) * 255);
+	color.a = (uint8_t)255.0f;
 
 	return color;
 }

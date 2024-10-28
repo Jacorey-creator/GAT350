@@ -1,5 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
+
+#define FLT_EPSILON 1.192092896e-07F
 template<typename T>
 inline T Lerp(const T& a, const T& b, float t) 
 {
@@ -16,10 +18,19 @@ inline glm::vec3 Cross(const glm::vec3& v1, const glm::vec3& v2)
 	glm::vec3 result;
 
 	result.x = v1.y * v2.z - v2.y * v1.z;
-	result.y = v1.x * v2.z - v2.z * v1.x;
+	result.y = v1.z * v2.x - v2.z * v1.x;
 	result.z = v1.x * v2.y - v2.x * v1.y;
 
 	return result;
+}
+inline float Dot(const glm::vec3& v1, const glm::vec3& v2) 
+{
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+inline glm::vec3 Reflect(const glm::vec3& i, const glm::vec3& n)
+{
+	return i - (n * glm::dot(n, i)) * 2.0f;
 }
 
 inline void QuadraticPoint(int x1, int y1, int x2, int y2, int x3, int y3, float t, int& x, int& y)
@@ -43,4 +54,10 @@ inline void CubicPoint(int x1, int y1, int x2, int y2, int x3, int y3, int x4, i
 
 	x = (int)((a1 * x1) + (b1 * x2) + (c1 * x3) + (d1 * x4));
 	y = (int)((a1 * y1) + (b1 * y2) + (c1 * y3) + (d1 * y4));
+}
+
+inline bool approximately(float value1, float value2)
+{
+	// check if the difference between the values is less than epsilon
+	return (glm::abs(value1 - value2) < FLT_EPSILON);
 }

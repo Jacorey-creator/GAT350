@@ -2,9 +2,17 @@
 #include "Model.h"
 
 
-void Model::Draw(Framebuffer& framebuffer, const glm::mat4& model, const class Camera& camera)
+//void Model::Draw(Framebuffer& framebuffer, const glm::mat4& model, const class Camera& camera)
+//{
+//	//
+//}
+
+void Model::Update() 
 {
-	//
+	for (size_t i = 0; i < m_local_vertices.size(); i++) 
+	{
+		m_vertices[i] = m_transform * glm::vec4{m_local_vertices[i], 1};
+	}
 }
 
 bool Model::Load(const std::string& filename)
@@ -78,7 +86,24 @@ bool Model::Load(const std::string& filename)
 	return true;
 }
 
-void Model::SetColor(const color_t& newColor)
+bool Model::Hit(const ray_t& ray, raycastHit_t& raycastHit, float minDistance, float maxDistance)
 {
-	m_color = newColor;
+	// check cast ray with mesh triangles 
+	for (size_t i = 0; i < m_vertices.size(); i + 3)
+	{
+		float t;
+		if (Triangle::Raycast(ray, m_vertices[i], m_vertices[i + 1], m_vertices[i + 2], minDistance, maxDistance, t))
+		{
+			return true;
+		}
+	
+	}
+
+	return false;
 }
+
+//void Model::SetColor(const color_t& newColor)
+//{
+//	m_color = newColor;
+//}
+

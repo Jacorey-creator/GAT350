@@ -23,7 +23,7 @@ void Scene::Render(Framebuffer& framebuffer, const Camera& camera, int numSample
 
 	for (int y = 0; y < framebuffer.m_height; y++)
 	{
-
+		scanlineTimer.Reset();
 		for (int x = 0; x < framebuffer.m_width; x++)
 		{
 			color3_t color{ 0 };

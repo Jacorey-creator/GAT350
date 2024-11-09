@@ -46,14 +46,14 @@ int main(int argc, char* argv[])
 
 	Camera cam{ 70.0f, framebuffer.m_width / (float)framebuffer.m_height };
 
-	cam.SetView({ 5, 5, -70 }, { 0, 0, 0 });
+	//cam.SetView({ 5, 5, -70 }, { 0, 0, 0 });
 	
 	Scene scene;
 	
-	InitScene(scene);
-	//InitScene01(scene, cam);
+	//InitScene(scene);
+	InitScene01(scene, cam);
 	
-	scene.Render(framebuffer, cam, 50, 6);
+	scene.Render(framebuffer, cam, 200, 6);
 
 	framebuffer.Update();
 
@@ -119,13 +119,19 @@ void InitScene(Scene& scene)
 		scene.AddObject(std::move(spheres));
 	}
 	
-	verticies_t verticies = { { -5, 5, 0},
-							  { 5, 5, 0 },
-							  {-5, -5, 0 } 
+	verticies_t verticies = {
+	{ glm::vec3(-0.5f, -0.5f, 0.0f) }, // Bottom-left
+	{ glm::vec3(0.5f, -0.5f, 0.0f) }, // Bottom-right
+	{ glm::vec3(0.5f,  0.5f, 0.0f) }, // Top-right
+	{ glm::vec3(-0.5f,  0.5f, 0.0f) }  // Top-left
 	};
 
-	Model model{ verticies,red};
-	model.Load("C:/Users/jrowe/source/repos/GAT350/Build/Models/cube.obj");
+	//Model model = (Transform(glm::vec3{ 0 }, glm::vec3{ 0 }, glm::vec3{ 1 }), verticies,red );
+	
+	auto model = std::make_unique<Model>(Transform(glm::vec3{ 40 , 0 , 0 }), verticies, white);
+	model->Load("C:/Users/jrowe/source/repos/GAT350/Build/Models/cube.obj");
+	scene.AddObject(std::move(model));
+
 	//triangle
 	//auto triangle = std::make_unique<Triangle>(glm::vec3{ 0,5,0 }, glm::vec3{ 5,5,0 }, glm::vec3{ 0,0,0 }, blue);
 	//scene.AddObject(std::move(triangle));

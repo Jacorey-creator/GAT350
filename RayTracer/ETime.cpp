@@ -15,5 +15,5 @@ void Time::Tick()
 float Time::GetElapsedTime()
 {
 	clock::duration duration = clock::now() - m_startTime;
-	return duration.count();
+	return duration.count() / (float)clock::duration::period::den;
 }

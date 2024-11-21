@@ -20,8 +20,8 @@ int main(int argc, char* argv[])
 	std::string img = "C:/Users/jrowe/source/repos/GAT350/Build/Photos/";
 	class Renderer r;
 	Camera camera(r.m_width, r.m_height);
-	camera.SetProjection(60.0f, 800.0f / 600, 0.1f, 200.0f);
-	Transform cameraTransform{ { 0, 0, -20 } };
+	camera.SetProjection(60.0f, 800.0f / 600, 0.1f, 600.0f);
+	Transform cameraTransform{ { 0, 0, 10 } };
 	
 	// initialize SDL
 	Time time;
@@ -52,18 +52,18 @@ int main(int argc, char* argv[])
 	//Model model(verticies, { 0, 255, 0, 255 });
 	std::shared_ptr<Model> model = std::make_shared<Model>();
 	
-	model->Load("C:/Users/jrowe/source/repos/GAT350/Build/cube.obj");
+	model->Load("C:/Users/jrowe/source/repos/GAT350/Build/Models/cube.obj");
 
 	std::vector<std::unique_ptr<Actor>> actors;
 
 	Transform transform{ {0 , 0, 0 }, glm::vec3{ 0, 0, 0 }, glm::vec3 { 2 } };
 	Transform potTransform{ {0 , 0, 0 }, glm::vec3{ 15, 0, 180 }, glm::vec3 { 8 } };
-	Transform slugTrasform{ {0 , 50, 100 }, glm::vec3{ 0, 0, 180 }, glm::vec3 { 2 } };
+	Transform sphereTrasform{ { 100 , 100, 0 }, glm::vec3{ 180, 0, 0 }, glm::vec3 { 50 } };
 
 	Actor actor(transform, model);
 
 	Model teapot;
-	Model slug;
+	Model sphere;
 	
 	for (int i = 0; i < 20; i++)
 	{
@@ -73,8 +73,8 @@ int main(int argc, char* argv[])
 		actors.push_back(std::move(actor));
 	}
 
-	teapot.Load("C:/Users/jrowe/source/repos/GAT350/Build/teapot.obj");
-	slug.Load("C:/Users/jrowe/source/repos/GAT350/Build/Nightmare_Fiend.obj");
+	teapot.Load("C:/Users/jrowe/source/repos/GAT350/Build/Models/teapot.obj");
+	sphere.Load("C:/Users/jrowe/source/repos/GAT350/Build/Models/sphere.obj");
 	
 	bool quit = false;
 	while (!quit) //main loop
@@ -150,19 +150,19 @@ int main(int argc, char* argv[])
 
 #pragma endregion
 
-		framebuffer.DrawImage(100, 100, image);
+		//framebuffer.DrawImage(100, 100, image);
 		
-		teapot.Draw(framebuffer, potTransform.GetMatrix(), camera);
+		//teapot.Draw(framebuffer, potTransform.GetMatrix(), camera);
 		teapot.SetColor({ 128, 77, 178, 255 });
 
-		slug.Draw(framebuffer, slugTrasform.GetMatrix(), camera);
+		sphere.Draw(framebuffer, sphereTrasform.GetMatrix(), camera);
 
 
-		for (auto& actor : actors)
-		{
-			//actor->SetColor({0, 0, 255, 255});
-			actor->Draw(framebuffer, camera);
-		}
+		//for (auto& actor : actors)
+		//{
+		//	//actor->SetColor({0, 0, 255, 255});
+		//	actor->Draw(framebuffer, camera);
+		//}
 		framebuffer.Update();
 
 		r.CopyFrameBuffer(framebuffer);

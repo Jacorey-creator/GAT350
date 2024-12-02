@@ -1,6 +1,7 @@
 #pragma once
 #include "Color.h"
 #include "Camera.h"
+#include "VertexShader.h"
 #include <glm/glm.hpp>
 #include <vector>
 #include <string>
@@ -9,21 +10,20 @@
 #include <sstream>
 #include <iostream>
 
-using vertex_t = glm::vec3;
-using verticies_t = std::vector<vertex_t>;
+
 
 class Model
 {
 public:
 		Model() = default;
-		Model(const verticies_t& verticies, const color_t& color) : m_vertices{ verticies }, m_color{ color } {}
+		Model(const vertexbuffer_t& verticies, const color4_t& color) : m_vb{ verticies }, m_color{ color } {}
 
-		void SetColor(const color_t& newColor);
-		void Draw(class Framebuffer& framebuffer, const glm::mat4& model, const class Camera& camera);
+		//void SetColor(const color4_t& newColor);
+		void Draw();
 		bool Load(const std::string& filename);
 
 private:
-	verticies_t m_vertices;
-	color_t m_color { 255, 255, 255, 255};
+	vertexbuffer_t m_vb;
+	color4_t m_color { 1 };
 
 };

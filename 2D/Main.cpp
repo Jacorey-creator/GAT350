@@ -4,6 +4,7 @@
 #include "Framebuffer.h"
 #include "Image.h"
 #include "Input.h"
+#include "Shader.h"
 #include "Actor.h"
 #include "Random.h"
 #include "PostProcess.h"
@@ -18,14 +19,16 @@
 int main(int argc, char* argv[])
 {
 	std::string img = "C:/Users/jrowe/source/repos/GAT350/Build/Photos/";
-	class Renderer r;
-	Camera camera(r.m_width, r.m_height);
-	camera.SetProjection(60.0f, 800.0f / 600, 0.1f, 600.0f);
-	Transform cameraTransform{ { 0, 0, 10 } };
+
 	
 	// initialize SDL
 	Time time;
 	Input input;
+
+	class Renderer r;
+	Camera camera(r.m_width, r.m_height);
+	camera.SetProjection(60.0f, 800.0f / 600, 0.1f, 600.0f);
+	Transform cameraTransform{ { 0, 0, 10 } };
 
 	input.Initialize();
 	r.Init_SDL();
@@ -44,37 +47,44 @@ int main(int argc, char* argv[])
 	alpha_image.Load(img + "colors.png");
 	PostProcess::Alpha(alpha_image.m_buffer, 128);
 
+	//shader
+	VertexShader::uniforms.view = camera.GetView();
+	VertexShader::uniforms.projection = camera.GetProjection();
+	VertexShader::uniforms.ambient = color3_t{ 0.01 };
 
-	verticies_t verticies = { { -5, 5, 0},
-							  { 5, 5, 0 }, 
-							  {-5, -5, 0 } };
+	VertexShader::uniforms.light.position = glm::vec3{ 10, 10, -10 };
+	VertexShader::uniforms.light.direction = glm::vec3{ 0, -1, 0 }; // light pointing down
+	VertexShader::uniforms.light.color = color3_t{ 1 }; // white light
 
-	//Model model(verticies, { 0, 255, 0, 255 });
+
+	Shader::framebuffer = &framebuffer;
+
+	//models
 	std::shared_ptr<Model> model = std::make_shared<Model>();
 	
-	model->Load("C:/Users/jrowe/source/repos/GAT350/Build/Models/cube.obj");
+	model->Load("Models/cube.obj");
 
-	std::vector<std::unique_ptr<Actor>> actors;
 
-	Transform transform{ {0 , 0, 0 }, glm::vec3{ 0, 0, 0 }, glm::vec3 { 2 } };
+	//Transform transform{ {0 , 0, 0 }, glm::vec3{ 0, 0, 0 }, glm::vec3 { 2 } };
 	Transform potTransform{ {0 , 0, 0 }, glm::vec3{ 15, 0, 180 }, glm::vec3 { 8 } };
 	Transform sphereTrasform{ { 100 , 100, 0 }, glm::vec3{ 180, 0, 0 }, glm::vec3 { 50 } };
 
-	Actor actor(transform, model);
+	//Actor actor(transform, model);
 
-	Model teapot;
-	Model sphere;
+	auto teapot = std::make_shared<Model>();
+	auto sphere = std::make_shared<Model>();
+
+	//actors
+	std::vector<std::unique_ptr<Actor>> actors;
+
+	teapot->Load("Models/sphere.obj");
+	//sphere->Load("Models/sphere.obj");
+
+	Transform transform{ glm::vec3{ 0 }, glm::vec3{ 0 }, glm::vec3{ 2 } };	
+	std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, teapot);	
+	actors.push_back(std::move(actor));	
+
 	
-	for (int i = 0; i < 20; i++)
-	{
-		Transform transform{ { randomf(-10.0f, 50.0f), randomf(-10.0f, 50.0f), randomf(-10.0f, 50.0f)}, glm::vec3{0, 0, 0}, glm::vec3{ randomf(2, 20) }};
-		std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model);
-		actor->SetColor({ (uint8_t)random(256), (uint8_t)random(256), (uint8_t)random(256), 255 });
-		actors.push_back(std::move(actor));
-	}
-
-	teapot.Load("C:/Users/jrowe/source/repos/GAT350/Build/Models/teapot.obj");
-	sphere.Load("C:/Users/jrowe/source/repos/GAT350/Build/Models/sphere.obj");
 	
 	bool quit = false;
 	while (!quit) //main loop
@@ -147,22 +157,21 @@ int main(int argc, char* argv[])
 		}
 		
 		camera.SetView(cameraTransform.position, cameraTransform.position + cameraTransform.GetForward());
+		VertexShader::uniforms.view = camera.GetView();
 
 #pragma endregion
 
 		//framebuffer.DrawImage(100, 100, image);
 		
 		//teapot.Draw(framebuffer, potTransform.GetMatrix(), camera);
-		teapot.SetColor({ 128, 77, 178, 255 });
-
-		sphere.Draw(framebuffer, sphereTrasform.GetMatrix(), camera);
+		//teapot.SetColor({ 128, 77, 178, 255 });
 
 
-		//for (auto& actor : actors)
-		//{
-		//	//actor->SetColor({0, 0, 255, 255});
-		//	actor->Draw(framebuffer, camera);
-		//}
+		for (auto& actor : actors)
+		{
+			//actor->SetColor({0, 0, 255, 255});
+			actor->Draw();
+		}
 		framebuffer.Update();
 
 		r.CopyFrameBuffer(framebuffer);

@@ -11,7 +11,7 @@ void Model::Update()
 {
 	for (size_t i = 0; i < m_local_vertices.size(); i++) 
 	{
-		m_vertices[i] = m_transform * glm::vec4{m_local_vertices[i], 1};
+		m_vb[i] = m_transform * glm::vec4{m_local_vertices[i], 1};
 	}
 }
 
@@ -27,7 +27,7 @@ bool Model::Load(const std::string& filename)
 		return false;
 	}
 
-	verticies_t vertices;
+	vertexbuffer_t vertices;
 	std::string line;
 	while (std::getline(stream, line))
 	{
@@ -76,7 +76,7 @@ bool Model::Load(const std::string& filename)
 					// index is 1 based, need to subtract one for array
 					glm::vec3 position = vertices[index[0] - 1];
 
-					m_vertices.push_back(position);
+					m_vb.push_back(position);
 				}
 			}
 		}
@@ -89,10 +89,10 @@ bool Model::Load(const std::string& filename)
 bool Model::Hit(const ray_t& ray, raycastHit_t& raycastHit, float minDistance, float maxDistance)
 {
 	// check cast ray with mesh triangles 
-	for (size_t i = 0; i < m_vertices.size(); i + 3)
+	for (size_t i = 0; i < m_vb.size(); i + 3)
 	{
 		float t;
-		if (Triangle::Raycast(ray, m_vertices[i], m_vertices[i + 1], m_vertices[i + 2], minDistance, maxDistance, t))
+		if (Triangle::Raycast(ray, m_vb[i], m_vb[i + 1], m_vb[i + 2], minDistance, maxDistance, t))
 		{
 			return true;
 		}

@@ -11,17 +11,17 @@
 #include <iostream>
 
 using vertex_t = glm::vec3;
-using verticies_t = std::vector<vertex_t>;
+using vertexbuffer_t = std::vector<vertex_t>;
 
 class Model : public SceneObject
 {
 public:
 	Model(std::shared_ptr<Material> material) : SceneObject{ material } {}
-	Model(const verticies_t& vertices, std::shared_ptr<Material> material) : SceneObject{ material }, m_vertices{ vertices } {}
+	Model(const vertexbuffer_t& vertices, std::shared_ptr<Material> material) : SceneObject{ material }, m_vb{ vertices } {}
 	
-	Model(const Transform& transform, const verticies_t& verticies, std::shared_ptr<Material> material) :
+	Model(const Transform& transform, const vertexbuffer_t& verticies, std::shared_ptr<Material> material) :
 		SceneObject{ transform, material },
-		m_vertices{ verticies }
+		m_vb{ verticies }
 	{}
 	//void Draw(class Framebuffer& framebuffer, const glm::mat4& model, const class Camera& camera);
 	bool Load(const std::string& filename);
@@ -29,6 +29,6 @@ public:
 	bool Hit(const ray_t& ray, raycastHit_t& raycastHit, float minDistance, float maxDistance) override;
 
 private:
-	verticies_t m_vertices;
-	verticies_t m_local_vertices;
+	vertexbuffer_t m_vb;
+	vertexbuffer_t m_local_vertices;
 };

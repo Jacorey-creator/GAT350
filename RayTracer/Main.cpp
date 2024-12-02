@@ -119,7 +119,7 @@ void InitScene(Scene& scene)
 		scene.AddObject(std::move(spheres));
 	}
 	
-	verticies_t verticies = {
+	vertexbuffer_t verticies = {
 	{ glm::vec3(-0.5f, -0.5f, 0.0f) }, // Bottom-left
 	{ glm::vec3(0.5f, -0.5f, 0.0f) }, // Bottom-right
 	{ glm::vec3(0.5f,  0.5f, 0.0f) }, // Top-right

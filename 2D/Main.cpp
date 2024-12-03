@@ -37,7 +37,6 @@ int main(int argc, char* argv[])
 	// returns pointer to window if successful or nullptr if failed
 	r.Create_Window("Game Engine", 800, 600);
 
-	//SetBlendMode(BlendMode::Normal);
 
 	Framebuffer framebuffer(r, 800, 600);
 	Image image;
